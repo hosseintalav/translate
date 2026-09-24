@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مترجم رایگان</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0d1117;
+            --bg-surface: #161b22;
+            --bg-surface-hover: #21262d;
+            --text-color: #f0f3f6;
+            --text-muted: #8b949e;
+        }
+
+        /* حذف استایل‌ها و افکت‌های پیش‌فرض مرورگر */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Vazirmatn', -apple-system, sans-serif;
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-focus-ring-color: transparent !important;
+        }
+
+        ::selection {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-color);
+            height: 100dvh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 860px;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 20px;
+            gap: 14px;
+        }
+
+        /* استایل بوردر گرادیانی المان‌ها */
+        .glass-pill {
+            background: 
+                linear-gradient(var(--bg-surface), var(--bg-surface)) padding-box,
+                linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.06) 100%) border-box;
+            border: 1.5px solid transparent;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+        }
+
+        /* نوار انتخاب زبان */
+        .nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            position: relative;
+            z-index: 50;
+        }
+
+        /* دراپ‌داون اختصاصی */
+        .custom-dropdown {
+            position: relative;
+            user-select: none;
+        }
+
+        .dropdown-trigger {
+            border-radius: 999px;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .dropdown-trigger:hover {
+            background: 
+                linear-gradient(var(--bg-surface-hover), var(--bg-surface-hover)) padding-box,
+                linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.1) 100%) border-box;
+        }
+
+        .dropdown-trigger svg {
+            width: 12px;
+            height: 12px;
+            fill: var(--text-muted);
+            transition: transform 0.25s ease;
+        }
+
+        .custom-dropdown.open .dropdown-trigger svg {
+            transform: rotate(180deg);
+        }
+
+        /* منوی بازشونده زبان‌ها با موقعیت هوشمند */
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            width: 165px;
+            max-height: 230px;
+            border-radius: 18px;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            padding: 6px;
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        /* تراز شدن صحیح در صفحه برای جلوگیری از بیرون‌زدگی در موبایل */
+        #sourceDropdown .dropdown-menu {
+            right: 0;
+            left: auto;
+        }
+
+        #targetDropdown .dropdown-menu {
+            left: 0;
+            right: auto;
+        }
+
+        .custom-dropdown.open .dropdown-menu {
+            display: flex;
+        }
+
+        .dropdown-item {
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+        }
+
+        .dropdown-item.selected {
+            background: rgba(255, 255, 255, 0.12);
+            font-weight: 600;
+        }
+
+        .dropdown-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .dropdown-menu::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        /* دکمه‌های دایره‌ای */
+        .circle-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .circle-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .circle-btn:active {
+            transform: scale(0.95);
+        }
+
+        .circle-btn svg {
+            width: 17px;
+            height: 17px;
+            fill: currentColor;
+        }
+
+        /* پنل‌های ورودی و خروجی */
+        .panels-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            height: 270px;
+            max-height: 270px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .compact-panel {
+            border-radius: 28px;
+            padding: 16px 20px 14px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .source-panel:focus-within {
+            background: 
+                linear-gradient(var(--bg-surface), var(--bg-surface)) padding-box,
+                linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.15) 100%) border-box;
+        }
+
+        .target-panel:focus-within,
+        .target-panel:focus,
+        .target-panel:active {
+            border: 1.5px solid transparent !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        textarea {
+            width: 100%;
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 0.96rem;
+            line-height: 1.6;
+            resize: none;
+            overflow-y: auto;
+            direction: rtl;
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.28);
+            transition: opacity 0.2s ease;
+        }
+
+        .target-panel.loading textarea::placeholder {
+            opacity: 0 !important;
+            visibility: hidden;
+        }
+
+        textarea::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        textarea::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+
+        /* فوتر داخل پنل‌ها */
+        .panel-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding-top: 4px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .small-circle-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+        }
+
+        .small-circle-btn:hover {
+            color: #ffffff;
+            transform: scale(1.06);
+        }
+
+        .small-circle-btn svg {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
+        }
+
+        .counter-badge {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+
+        /* انیمیشن سه نقطه */
+        .typing-loader {
+            display: none;
+            position: absolute;
+            top: 24px;
+            right: 22px;
+            gap: 6px;
+            align-items: center;
+            z-index: 5;
+        }
+
+        .target-panel.loading .typing-loader {
+            display: flex;
+        }
+
+        .typing-loader span {
+            width: 6px;
+            height: 6px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            animation: bounce 1.1s infinite ease-in-out both;
+        }
+
+        .typing-loader span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-loader span:nth-child(2) { animation-delay: -0.16s; }
+        .typing-loader span:nth-child(3) { animation-delay: 0s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: translateY(0);
+                opacity: 0.25;
+            }
+            40% {
+                transform: translateY(-8px);
+                opacity: 1;
+            }
+        }
+
+        /* متن کپی‌رایت پایین صفحه */
+       .credit-text {
+    position: fixed;
+    bottom: 12px;               /* فاصله دقیق از کف صفحه */
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.72rem;         /* اندازه کوچک و ظریف (حدود ۱۱ پیکسل) */
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.22); /* رنگ بسیار ملایم و کم‌رنگ */
+    letter-spacing: 0.4px;
+    user-select: none;
+    pointer-events: none;       /* جلوگیری از تداخل با کلیک‌های احتمالی */
+    z-index: 10;
+    transition: color 0.3s ease;
+}
+
+        /* بهینه‌سازی بدون اسکرول در حالت موبایل */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .panels-wrapper {
+                grid-template-columns: 1fr;
+                height: 380px;
+                max-height: 56vh;
+                gap: 10px;
+            }
+
+            .compact-panel {
+                border-radius: 20px;
+                padding: 12px 16px;
+            }
+
+            .circle-btn {
+                width: 38px;
+                height: 38px;
+            }
+
+            .dropdown-trigger {
+                padding: 6px 14px;
+                font-size: 0.88rem;
+            }
+
+            /* بهینه‌سازی ابعاد منو در نمایشگرهای کوچک */
+            .dropdown-menu {
+                width: 145px;
+                max-height: 180px;
+            }
+
+            .dropdown-item {
+                padding: 7px 10px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- نوار زبان‌ها -->
+        <div class="nav-bar">
+            <!-- منوی مبدا -->
+            <div class="custom-dropdown" id="sourceDropdown">
+                <div class="glass-pill dropdown-trigger">
+                    <span class="selected-text">انگلیسی</span>
+                    <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                </div>
+                <div class="glass-pill dropdown-menu" id="sourceMenu"></div>
+            </div>
+
+            <!-- دکمه جابجایی -->
+            <button class="glass-pill circle-btn" id="swapBtn" title="جابجایی زبان‌ها">
+                <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+            </button>
+
+            <!-- منوی مقصد -->
+            <div class="custom-dropdown" id="targetDropdown">
+                <div class="glass-pill dropdown-trigger">
+                    <span class="selected-text">فارسی</span>
+                    <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                </div>
+                <div class="glass-pill dropdown-menu" id="targetMenu"></div>
+            </div>
+        </div>
+
+        <!-- فیلدهای ورودی و خروجی -->
+        <main class="panels-wrapper">
+            <!-- پنل ورودی -->
+            <div class="glass-pill compact-panel source-panel">
+                <textarea id="sourceText" maxlength="1000" placeholder="متن را وارد کنید..." dir="auto"></textarea>
+                <div class="panel-footer">
+                    <div class="btn-group">
+                        <button class="glass-pill small-circle-btn" id="clearBtn" title="پاک کردن متن">
+                            <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                        </button>
+                        <button class="glass-pill small-circle-btn" id="speakSourceBtn" title="پخش صوتی">
+                            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                        </button>
+                    </div>
+                    <div class="glass-pill counter-badge" id="charCount">0 / 1000</div>
+                </div>
+            </div>
+
+            <!-- پنل خروجی -->
+            <div class="glass-pill compact-panel target-panel" id="targetPanel">
+                <!-- انیمیشن سه نقطه متحرک بدون متن در پشت -->
+                <div class="typing-loader">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                
+                <textarea id="targetText" placeholder="ترجمه..." readonly dir="auto"></textarea>
+                
+                <div class="panel-footer">
+                    <div class="btn-group">
+                        <button class="glass-pill small-circle-btn" id="copyBtn" title="کپی متن">
+                            <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        </button>
+                        <button class="glass-pill small-circle-btn" id="speakTargetBtn" title="پخش صوتی">
+                            <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- متن کپی‌رایت با فونت وزیر -->
+        <div class="credit-text">ساخته شده توسط حسین</div>
+    </div>
+
+    <script>
+        const languages = [
+            { code: 'fa', name: 'فارسی' },
+            { code: 'en', name: 'انگلیسی' },
+            { code: 'ar', name: 'عربی' },
+            { code: 'tr', name: 'ترکی استانبولی' },
+            { code: 'fr', name: 'فرانسوی' },
+            { code: 'de', name: 'آلمانی' },
+            { code: 'es', name: 'اسپانیایی' },
+            { code: 'it', name: 'ایتالیایی' },
+            { code: 'ru', name: 'روسی' },
+            { code: 'zh-CN', name: 'چینی' },
+            { code: 'ja', name: 'ژاپنی' },
+            { code: 'ko', name: 'کره‌ای' },
+            { code: 'pt', name: 'پرتغالی' },
+            { code: 'hi', name: 'هندی' },
+            { code: 'nl', name: 'هلندی' }
+        ];
+
+        let currentSource = 'en';
+        let currentTarget = 'fa';
+
+        const sourceDropdown = document.getElementById('sourceDropdown');
+        const targetDropdown = document.getElementById('targetDropdown');
+        const sourceMenu = document.getElementById('sourceMenu');
+        const targetMenu = document.getElementById('targetMenu');
+        const sourceText = document.getElementById('sourceText');
+        const targetText = document.getElementById('targetText');
+        const targetPanel = document.getElementById('targetPanel');
+        const swapBtn = document.getElementById('swapBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const charCount = document.getElementById('charCount');
+        const speakSourceBtn = document.getElementById('speakSourceBtn');
+        const speakTargetBtn = document.getElementById('speakTargetBtn');
+
+        let debounceTimer;
+
+        function renderMenu(menuEl, selectedCode, onSelect) {
+            menuEl.innerHTML = '';
+            languages.forEach(lang => {
+                const item = document.createElement('div');
+                item.className = `dropdown-item ${lang.code === selectedCode ? 'selected' : ''}`;
+                item.textContent = lang.name;
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    onSelect(lang.code, lang.name);
+                });
+                menuEl.appendChild(item);
+            });
+        }
+
+        function updateDropdowns() {
+            sourceDropdown.querySelector('.selected-text').textContent = languages.find(l => l.code === currentSource).name;
+            targetDropdown.querySelector('.selected-text').textContent = languages.find(l => l.code === currentTarget).name;
+
+            renderMenu(sourceMenu, currentSource, (code) => {
+                currentSource = code;
+                updateDropdowns();
+                closeAllDropdowns();
+                translate();
+            });
+
+            renderMenu(targetMenu, currentTarget, (code) => {
+                currentTarget = code;
+                updateDropdowns();
+                closeAllDropdowns();
+                translate();
+            });
+        }
+
+        function closeAllDropdowns() {
+            sourceDropdown.classList.remove('open');
+            targetDropdown.classList.remove('open');
+        }
+
+        sourceDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+            targetDropdown.classList.remove('open');
+            sourceDropdown.classList.toggle('open');
+        });
+
+        targetDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sourceDropdown.classList.remove('open');
+            targetDropdown.classList.toggle('open');
+        });
+
+        window.addEventListener('click', closeAllDropdowns);
+
+        async function translate() {
+            const text = sourceText.value.trim();
+            if (!text) {
+                targetText.value = '';
+                targetPanel.classList.remove('loading');
+                return;
+            }
+
+            targetText.value = '';
+            targetPanel.classList.add('loading');
+
+            const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${currentSource}|${currentTarget}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.responseData) {
+                    targetText.value = data.responseData.translatedText;
+                } else {
+                    targetText.value = "امکان ترجمه وجود ندارد.";
+                }
+            } catch (err) {
+                targetText.value = "خطا در اتصال به اینترنت یا سرور.";
+            } finally {
+                targetPanel.classList.remove('loading');
+            }
+        }
+
+        sourceText.addEventListener('input', () => {
+            const len = sourceText.value.length;
+            charCount.textContent = `${len} / 1000`;
+
+            clearTimeout(debounceTimer);
+            if (!sourceText.value.trim()) {
+                targetText.value = '';
+                targetPanel.classList.remove('loading');
+                return;
+            }
+            debounceTimer = setTimeout(translate, 600);
+        });
+
+        swapBtn.addEventListener('click', () => {
+            const tempLang = currentSource;
+            currentSource = currentTarget;
+            currentTarget = tempLang;
+
+            const tempTxt = sourceText.value;
+            sourceText.value = targetText.value;
+            targetText.value = tempTxt;
+
+            charCount.textContent = `${sourceText.value.length} / 1000`;
+            updateDropdowns();
+            translate();
+        });
+
+        clearBtn.addEventListener('click', () => {
+            sourceText.value = '';
+            targetText.value = '';
+            charCount.textContent = '0 / 1000';
+            targetPanel.classList.remove('loading');
+            sourceText.focus();
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (!targetText.value) return;
+            navigator.clipboard.writeText(targetText.value);
+            copyBtn.style.color = '#ffffff';
+            setTimeout(() => copyBtn.style.color = 'var(--text-muted)', 800);
+        });
+
+        function speak(text, lang) {
+            if (!text || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = lang;
+            window.speechSynthesis.speak(utter);
+        }
+
+        speakSourceBtn.addEventListener('click', () => speak(sourceText.value, currentSource));
+        speakTargetBtn.addEventListener('click', () => speak(targetText.value, currentTarget));
+
+        updateDropdowns();
+    </script>
+</body>
+</html>
